@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:jobtask/constants.dart';
+import 'package:jobtask/screens/product_list_screen.dart';
+import 'package:jobtask/widgets/_add_product_form.dart';
 
 class AddProductScreen extends StatelessWidget {
   AddProductScreen({super.key});
@@ -10,9 +13,8 @@ class AddProductScreen extends StatelessWidget {
     '',
   ];
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar(BuildContext context) {
     return Container(
-      height: 120,
       child: Row(
         children: [
           Expanded(
@@ -30,7 +32,9 @@ class AddProductScreen extends StatelessWidget {
                 Icons.arrow_forward_ios,
                 size: 20,
               ),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductListScreen()));
+              },
             ),
           ),
         ],
@@ -83,7 +87,7 @@ class AddProductScreen extends StatelessWidget {
       height: 70,
       width: double.maxFinite,
       decoration: BoxDecoration(
-        color: Color(0xFF3EB86F),
+        color: primaryButtonColor,
         borderRadius: BorderRadius.circular(10),
       ),
       child: GestureDetector(
@@ -121,26 +125,39 @@ class AddProductScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF9F9F9),
-      body: Container(
-        margin: EdgeInsets.all(20),
-        child: Column(
-          children: [
-            _buildAppBar(),
-            SizedBox(
-              height: 10,
-            ),
-            Text('product pictures',),
-            _buildProductPictures(context),
-            SizedBox(
-              height: 10,
-            ),
-            _buildButton(Icons.add, 'press to add picture'),
-            SizedBox(
-              height: 10,
-            ),
-            _buildButton( null,'add product')
-          ],
+      backgroundColor: primaryBackgroundColor,
+      body: SingleChildScrollView(
+        child: Container(
+          margin: EdgeInsets.all(20),
+          child: Column(
+            children: [
+              SizedBox(
+                height: 10,
+              ),
+              _buildAppBar(context),
+              SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text('product pictures',),
+                ],
+              ),
+              _buildProductPictures(context),
+              SizedBox(
+                height: 10,
+              ),
+              _buildButton(Icons.add, 'press to add picture'),
+              SizedBox(
+                height: 10,
+              ),
+
+              ProductAddForm(),
+
+
+            ],
+          ),
         ),
       ),
     );
