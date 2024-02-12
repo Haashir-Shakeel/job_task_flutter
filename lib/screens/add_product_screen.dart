@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:jobtask/constants.dart';
 import 'package:jobtask/screens/product_list_screen.dart';
 import 'package:jobtask/widgets/_add_product_form.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
-class AddProductScreen extends StatelessWidget {
+class AddProductScreen extends StatefulWidget {
   AddProductScreen({super.key});
+
+  @override
+  State<AddProductScreen> createState() => _AddProductScreenState();
+}
+
+class _AddProductScreenState extends State<AddProductScreen> {
+  List<File> _productImages = [];
 
   final List<String> productImageUrls = [
     'assets/rectangle8088.png',
@@ -12,6 +22,22 @@ class AddProductScreen extends StatelessWidget {
     '',
     '',
   ];
+
+  Future<void> _addPicture() async {
+    final picker = ImagePicker();
+    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedImage != null) {
+      setState(() {
+        _productImages.add(File(pickedImage.path));
+      });
+    }
+  }
+
+  void _removeImage(int index) {
+    setState(() {
+      _productImages.removeAt(index);
+    });
+  }
 
   Widget _buildAppBar(BuildContext context) {
     return Container(
@@ -33,7 +59,10 @@ class AddProductScreen extends StatelessWidget {
                 size: 20,
               ),
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductListScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ProductListScreen()));
               },
             ),
           ),
@@ -42,47 +71,48 @@ class AddProductScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildImageWidget(int index) {
-    return ClipRRect(
-        borderRadius: BorderRadius.circular(10.0),
-        child: Image.asset(
-          productImageUrls[index],
-          fit: BoxFit.cover,
-        ));
-  }
-
+  // Widget _buildImageWidget(int index) {
   Widget _buildProductPictures(BuildContext context) {
     return Container(
-      height: 120,
-      width: double.maxFinite,
-      child: ListView.builder(
-          itemCount: productImageUrls.length,
-          scrollDirection: Axis.horizontal,
-          itemBuilder: (BuildContext context, int index) {
-            return Container(
-              margin: const EdgeInsets.only(right: 15, top: 10),
-              height: 80,
-              width: 100,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: productImageUrls[index] != ''
-                  ? Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage(productImageUrls[index]),
-                      fit: BoxFit.cover
-                    )
-                  ),
-              )
-                  : Container(),
-            );
-          }),
-    );
+        height: 120,
+        width: double.maxFinite,
+        child: ListView.builder(
+                itemCount: _productImages.length,
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (BuildContext context, int index) {
+                  return Container(
+                      margin: const EdgeInsets.only(right: 15, top: 10),
+                      height: 80,
+                      width: 100,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: Stack(
+                        children: [
+                          Container(
+                            child: Image.file(
+                              _productImages[index],
+                              fit: BoxFit.cover,
+                              height: 100,
+                              width: 100,
+                            ),
+                          ),
+                          Positioned(
+                            top: -5,
+                            left: -10,
+                            child: IconButton(
+                              icon: SvgPicture.asset('assets/forbidden2.svg'),
+                              onPressed: () => _removeImage(index),
+                            ),
+                          ),
+                        ],
+                      ));
+                })
+             ,);
   }
 
-  Widget _buildButton(IconData? buttonIcon, String buttonText){
+  Widget _buildButton(IconData? buttonIcon, String buttonText) {
     return Container(
       height: 70,
       width: double.maxFinite,
@@ -91,31 +121,36 @@ class AddProductScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: GestureDetector(
-        onTap: (){
-          print('button pressed');
+        onTap: () {
+          _addPicture();
         },
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             //icon of button
-            buttonIcon != null ? Container(
-              height: 35,
-              width: 35,
-              margin: EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                  color: Colors.white, borderRadius: BorderRadius.circular(10)),
-              child: IconButton(
-                icon: Icon(
-                  buttonIcon,
-                  size: 20,
-                ),
-                onPressed: () {},
-              ),
-            ):
-                Container(),
+            buttonIcon != null
+                ? Container(
+                    height: 35,
+                    width: 35,
+                    margin: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10)),
+                    child: IconButton(
+                      icon: Icon(
+                        buttonIcon,
+                        size: 20,
+                      ),
+                      onPressed: () {},
+                    ),
+                  )
+                : Container(),
 
             //button text
-            Text(buttonText,style: TextStyle(color: Colors.white),)
+            Text(
+              buttonText,
+              style: TextStyle(color: Colors.white),
+            )
           ],
         ),
       ),
@@ -141,7 +176,9 @@ class AddProductScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Text('product pictures',),
+                  Text(
+                    'product pictures',
+                  ),
                 ],
               ),
               _buildProductPictures(context),
@@ -152,10 +189,7 @@ class AddProductScreen extends StatelessWidget {
               SizedBox(
                 height: 10,
               ),
-
-              ProductAddForm(),
-
-
+              ProductAddForm(productImages: _productImages,),
             ],
           ),
         ),
