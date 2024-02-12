@@ -15,6 +15,17 @@ class Product {
     required this.images,
   });
 
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      productName: json['productName'],
+      storeName: json['storeName'],
+      price: json['price'],
+      category: json['category'],
+      images: (json['images'] as List).map((path) => File(path)).toList(),
+    );
+  }
+
+
   Map<String, dynamic> toMap() {
     return {
       'productName': productName,
