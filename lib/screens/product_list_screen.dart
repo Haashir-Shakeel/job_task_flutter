@@ -31,6 +31,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
   ];
   late List<Product> products;
 
+  bool _isHorizontal = false;
   @override
   void initState() {
     super.initState();
@@ -143,27 +144,34 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
   Widget _buildChangeDisplayRow(){
-    return Row(
-      children: [
-        IconButton(
-          icon: SvgPicture.asset('assets/Vector.svg'),
-          onPressed: () {},
-        ),
-
-        Container(
-          padding: EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10)
+    return GestureDetector(
+      onTap: (){
+        setState(() {
+          _isHorizontal = !_isHorizontal; // Toggle the display mode
+        });
+      },
+      child: Row(
+        children: [
+          IconButton(
+            icon: SvgPicture.asset('assets/Vector.svg'),
+            onPressed: () {},
           ),
-          child: Text(
-            'Change the display to horizontal',
-            style: TextStyle(
-              color: Colors.pink
+
+          Container(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10)
+            ),
+            child: Text(
+              'Change the display to horizontal',
+              style: TextStyle(
+                color: Colors.pink
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -174,12 +182,53 @@ class _ProductListScreenState extends State<ProductListScreen> {
         margin: EdgeInsets.all(8),
         child: ListView.builder(
             itemCount: products.length,
-            scrollDirection: Axis.vertical,
+            scrollDirection: _isHorizontal ?Axis.horizontal:Axis.vertical,
             itemBuilder: (_,index){
               Product product = products[index];
               return Container(
-                margin: EdgeInsets.only(bottom: 10),
-                child: Row(
+                margin: _isHorizontal?EdgeInsets.only(right: 10):EdgeInsets.only(bottom: 10),
+                child: _isHorizontal? Column(children: [
+                  //image container
+
+                  product.images.isNotEmpty
+                      ? Container(
+                    width: 100,
+                    height: 100,
+                    child: Image.file(
+                      product.images.first,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                      : Container(),
+
+                  SizedBox(width: 15,),
+                  //product description container
+                  Container(
+                    child: Column(
+                      children: [
+                        Text(product.productName,style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
+                        SizedBox(height: 10,),
+                        Row(
+                          children: [
+                            Text(product.price.toString(),style: TextStyle(color: primaryButtonColor,fontSize: 16),),
+                            SizedBox(width: 3,),
+                            Text('SAR',style: TextStyle(color: Colors.grey.shade700,fontSize: 14),)
+                          ],
+                        ),
+                        SizedBox(height: 10,),
+                        Container(
+                          padding: EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              color: greyColor
+                          ),
+                          child: Text(product.storeName,style: TextStyle(color: Colors.grey.shade700),),
+                        )
+                      ],
+                    ),
+                  )
+                ],
+                ) :Row(
                   children: [
                     //image container
 
@@ -223,7 +272,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   ],
 
 
-                ),
+                ) ,
               );
             }),
       ),
