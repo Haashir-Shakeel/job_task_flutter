@@ -5,8 +5,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants.dart';
 import '../data/product.dart';
+import 'dart:io';
 
 class ProductAddForm extends StatefulWidget {
+  final List<File> productImages;
+
+  ProductAddForm({required this.productImages});
   @override
   ProductAddFormState createState() => ProductAddFormState();
 }
@@ -64,6 +68,7 @@ class ProductAddFormState extends State<ProductAddForm> {
       storeName: _storeNameController.text.trim(),
       price: double.parse(_priceController.text.trim()),
       category: _selectedCategory,
+      images: widget.productImages,
     );
 
     // Convert product to a map
@@ -82,6 +87,11 @@ class ProductAddFormState extends State<ProductAddForm> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Product added successfully')),
     );
+
+    _priceController.clear();
+    _productNameController.clear();
+    _storeNameController.clear();
+    _selectedCategory='all';
 
     print(prefs.getStringList('products'));
   }
