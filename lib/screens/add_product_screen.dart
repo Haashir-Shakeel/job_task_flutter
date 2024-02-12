@@ -73,7 +73,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   // Widget _buildImageWidget(int index) {
   Widget _buildProductPictures(BuildContext context) {
-    return Container(
+    return _productImages.length > 0?
+      Container(
         height: 120,
         width: double.maxFinite,
         child: ListView.builder(
@@ -109,7 +110,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         ],
                       ));
                 })
-             ,);
+             ,):
+    Container();
   }
 
   Widget _buildButton(IconData? buttonIcon, String buttonText) {
