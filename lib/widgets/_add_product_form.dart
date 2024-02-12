@@ -141,19 +141,19 @@ class ProductAddFormState extends State<ProductAddForm> {
     );
   }
   Widget _buildButton(IconData? buttonIcon, String buttonText,){
-    return Container(
-      height: 70,
-      width: double.maxFinite,
-      decoration: BoxDecoration(
-        color: primaryButtonColor,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: GestureDetector(
-        onTap: (){
-          print('add product clicked');
-          _saveProduct();
-          print('add product done');
-        },
+    return GestureDetector(
+      onTap: (){
+        print('add product clicked');
+        _saveProduct();
+        print('add product done');
+      },
+      child: Container(
+        height: 70,
+        width: double.maxFinite,
+        decoration: BoxDecoration(
+          color: primaryButtonColor,
+          borderRadius: BorderRadius.circular(10),
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

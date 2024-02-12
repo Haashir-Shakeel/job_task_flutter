@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:jobtask/constants.dart';
-import 'package:jobtask/screens/product_list_screen.dart';
-import 'package:jobtask/widgets/_add_product_form.dart';
+import '../constants.dart';
+import '../screens/product_list_screen.dart';
+import '../widgets/_add_product_form.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
@@ -113,17 +113,17 @@ class _AddProductScreenState extends State<AddProductScreen> {
   }
 
   Widget _buildButton(IconData? buttonIcon, String buttonText) {
-    return Container(
-      height: 70,
-      width: double.maxFinite,
-      decoration: BoxDecoration(
-        color: primaryButtonColor,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: GestureDetector(
-        onTap: () {
-          _addPicture();
-        },
+    return GestureDetector(
+      onTap: () {
+        _addPicture();
+      },
+      child: Container(
+        height: 70,
+        width: double.maxFinite,
+        decoration: BoxDecoration(
+          color: primaryButtonColor,
+          borderRadius: BorderRadius.circular(10),
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
