@@ -7,6 +7,8 @@ import '../constants.dart';
 import '../data/product.dart';
 import 'dart:io';
 
+import '../screens/product_list_screen.dart';
+
 class ProductAddForm extends StatefulWidget {
   final List<File> productImages;
 
@@ -16,6 +18,7 @@ class ProductAddForm extends StatefulWidget {
 }
 
 class ProductAddFormState extends State<ProductAddForm> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _productNameController = TextEditingController();
   final TextEditingController _storeNameController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
@@ -30,102 +33,114 @@ class ProductAddFormState extends State<ProductAddForm> {
     super.dispose();
   }
 
-  // void _saveProduct() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //
-  //   // Create a Product object
-  //   Product product = Product(
-  //     productName: _productNameController.text,
-  //     storeName: _storeNameController.text,
-  //     price: double.parse(_priceController.text),
-  //     category: _selectedCategory,
-  //   );
-  //
-  //   // Convert product to a map
-  //   Map<String, dynamic> productMap = product.toMap();
-  //
-  //   // Save product data to shared preferences
-  //   await prefs.setString('product', productMap.toString());
-  //
-  //   // Show a message indicating the product has been saved
-  //   ScaffoldMessenger.of(context).showSnackBar(
-  //     SnackBar(content: Text('product added')),
-  //   );
-  // }
+
 
   void _saveProduct() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (_formKey.currentState!.validate()) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    // Retrieve existing product list from shared preferences
-    List<String>? productList = prefs.getStringList('products');
 
-    // Parse existing product list if available, otherwise initialize an empty list
-    List products = productList?.map((jsonString) => jsonDecode(jsonString)).toList() ?? [];
+      List<String>? productList = prefs.getStringList('products');
 
-    // Create a Product object
-    Product product = Product(
-      productName: _productNameController.text.trim(),
-      storeName: _storeNameController.text.trim(),
-      price: double.parse(_priceController.text.trim()),
-      category: _selectedCategory,
-      images: widget.productImages,
-    );
 
-    // Convert product to a map
-    Map<String, dynamic> productMap = product.toMap();
+      List products = productList?.map((jsonString) => jsonDecode(jsonString))
+          .toList() ?? [];
 
-    // Add new product to the list
-    products.add(productMap);
 
-    // Serialize product list to JSON
-    List<String> serializedProducts = products.map((product) => jsonEncode(product)).toList();
+      Product product = Product(
+        productName: _productNameController.text.trim(),
+        storeName: _storeNameController.text.trim(),
+        price: double.parse(_priceController.text.trim()),
+        category: _selectedCategory,
+        images: widget.productImages,
+      );
 
-    // Save product list to shared preferences
-    await prefs.setStringList('products', serializedProducts);
 
-    // Show a message indicating the product has been saved
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Product added successfully')),
-    );
+      Map<String, dynamic> productMap = product.toMap();
 
-    _priceController.clear();
-    _productNameController.clear();
-    _storeNameController.clear();
-    _selectedCategory='all';
 
-    print(prefs.getStringList('products'));
+      products.add(productMap);
+
+
+      List<String> serializedProducts = products.map((product) =>
+          jsonEncode(product)).toList();
+
+
+      await prefs.setStringList('products', serializedProducts);
+
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Product added successfully')),
+      );
+
+      _priceController.clear();
+      _productNameController.clear();
+      _storeNameController.clear();
+      _selectedCategory = 'all';
+
+      print(prefs.getStringList('products'));
+      _formKey.currentState!.reset();
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ProductListScreen()));
+    }
   }
 
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildInputField(
-          label: 'Product Name',
-          hintText: 'Enter product name',
-          controller: _productNameController,
-        ),
-        SizedBox(height: 20.0),
-        _buildInputField(
-          label: 'Store Name',
-          hintText: 'Enter store name',
-          controller: _storeNameController,
-        ),
-        SizedBox(height: 20.0),
-        _buildInputField(
-          label: 'Price',
-          hintText: 'Enter price',
-          controller: _priceController,
-        ),
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildInputField(
+            label: 'Product Name',
+            hintText: 'Enter product name',
+            controller: _productNameController,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter product name';
+              }
+              return null;
+            },
+          ),
+          SizedBox(height: 20.0),
+          _buildInputField(
+            label: 'Store Name',
+            hintText: 'Enter store name',
+            controller: _storeNameController,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter store name';
+              }
+              return null;
+            },
+          ),
+          SizedBox(height: 20.0),
+          _buildInputField(
+            label: 'Price',
+            hintText: 'Enter price',
+            controller: _priceController,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter price';
+              }
+              if (double.tryParse(value) == null) {
+                return 'Please enter a valid number';
+              }
+              return null;
+            },
+          ),
 
-        SizedBox(height: 20.0),
-        _buildDropdownField(),
-      ],
+          SizedBox(height: 20.0),
+          _buildDropdownField(),
+        ],
+      ),
     );
   }
-  Widget _buildButton(IconData? buttonIcon, String buttonText){
+  Widget _buildButton(IconData? buttonIcon, String buttonText,){
     return Container(
       height: 70,
       width: double.maxFinite,
@@ -171,6 +186,7 @@ class ProductAddFormState extends State<ProductAddForm> {
     required String label,
     required String hintText,
     required TextEditingController controller,
+    required String? Function(String?) validator,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -188,7 +204,7 @@ class ProductAddFormState extends State<ProductAddForm> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(10.0),
           ),
-          child: TextField(
+          child: TextFormField(
             controller: controller,
             decoration: InputDecoration(
               hintText: hintText,
@@ -199,6 +215,7 @@ class ProductAddFormState extends State<ProductAddForm> {
               border: InputBorder.none,
             ),
             style: TextStyle(fontSize: 16.0),
+            validator: validator,
           ),
         ),
       ],
